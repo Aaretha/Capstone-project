@@ -1,19 +1,21 @@
-apiVersion: v1
-kind: ConfigMap
+apiVersion: v1  # Specifies the API version for the ConfigMap resource
+kind: ConfigMap  # Resource type is ConfigMap, used to store configuration data in key-value pairs
 metadata:
-  name: alertmanager-config
-  namespace: monitoring
+  name: alertmanager-config  # Name of the ConfigMap
+  namespace: monitoring  # The namespace where the ConfigMap will be created
 data:
-  alertmanager.yml: |
+  alertmanager.yml: |  # Key in the ConfigMap; the value is the content of the Alertmanager configuration file
     global:
-      resolve_timeout: 5m
+      resolve_timeout: 5m  # Time to wait before marking an alert as resolved if it hasn't been explicitly resolved
+
     route:
-      receiver: 'slack-notifications'
-      group_wait: 10s
-      group_interval: 10s
-      repeat_interval: 1h
+      receiver: 'slack-notifications'  # Default receiver to which alerts will be sent
+      group_wait: 10s  # Time to wait before sending a group of alerts
+      group_interval: 10s  # Minimum interval between sending new alerts for the same group
+      repeat_interval: 1h  # Time after which an alert will be resent if it hasn't been resolved
+
     receivers:
-    - name: 'slack-notifications'
+    - name: 'slack-notifications'  # Defines the receiver named 'slack-notifications'
       slack_configs:
-      - api_url: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX'
-        channel: '#alerts'
+      - api_url: 'https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXXXXXX'  # Webhook URL for sending alerts to Slack
+        channel: '#alerts'  # Slack channel where the alerts will be sent
