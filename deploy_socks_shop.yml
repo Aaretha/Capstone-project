@@ -1,0 +1,14 @@
+---
+- name: Deploy Socks Shop Application
+  hosts: localhost
+  tasks:
+    - name: Clone Socks Shop repository
+      git:
+        repo: 'https://github.com/microservices-demo/microservices-demo'
+        dest: './microservices-demo'
+        version: 'master'
+
+    - name: Deploy Socks Shop
+      kubernetes.core.k8s:
+        state: present
+        src: './microservices-demo/deploy/kubernetes/complete-demo.yaml'

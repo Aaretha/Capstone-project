@@ -1,0 +1,27 @@
+# - hosts: localhost
+#   tasks:
+#     - name: Setup AWS Infrastructure with Terraform
+#       command: terraform init 
+#       args:
+#         chdir: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/terraform
+
+#     - name: Setup AWS Infrastructure with Terraform
+#       command: terraform apply -auto-approve
+#       args:
+#         chdir: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/terraform
+
+# - import_playbook: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/ansible/playbooks/setup_monitoring.yml
+
+# - import_playbook: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/ansible/playbooks/deploy_socks_shop.yml
+
+# - import_playbook: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/ansible/playbooks/security.yml
+
+# - import_playbook: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/ansible/playbooks/setup_logging.yml
+
+- hosts: localhost
+  tasks:
+    - name: Apply Kubernetes Manifests 
+      command: |
+        kubectl apply -f issuer.yaml -f ingress.yaml -f servicemonitor.yaml -f alertmanager-config.yaml -f network-policy.yaml
+      args:
+        chdir: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/k8s-manifests

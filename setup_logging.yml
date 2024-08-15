@@ -1,0 +1,32 @@
+- hosts: localhost
+  tasks:
+    - name: Ensure the logging namespace exists
+      shell: kubectl get namespace logging || kubectl create namespace logging
+
+    - name: Ensure the amazon-cloudwatch namespace exists
+      shell: kubectl get namespace amazon-cloudwatch || kubectl create namespace amazon-cloudwatch
+
+    - name: Create cluster-info ConfigMap only if it doesn't exist
+      shell: |
+        kubectl get configmap cluster-info -n amazon-cloudwatch || \
+        kubectl create configmap cluster-info --from-literal=cluster.name=socks_shop_cluster --from-literal=logs.region=us-east-1 -n amazon-cloudwatch
+
+    - name: Deploy Fluentd DaemonSet
+      shell: kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/fluentd/fluentd.yaml
+
+    - name: Add elastic Helm repo
+      shell: helm repo add elastic https://helm.elastic.co
+
+    - name: Install Elasticsearch 
+      shell: helm install elasticsearch elastic/elasticsearch --namespace logging
+
+    - name: Download and install the public signing key for Kibana
+      shell: wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+
+    - name: Install from APT repository
+      shell: |
+       sudo apt-get install apt-transport-https
+       echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
+       
+    - name:  Install the Kibana Debian package   
+      shell: sudo apt-get update && sudo apt-get install kibana
