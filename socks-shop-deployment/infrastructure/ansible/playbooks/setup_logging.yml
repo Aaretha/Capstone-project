@@ -1,32 +1,52 @@
 - hosts: localhost
   tasks:
+    # Task to ensure that the 'logging' namespace exists in the Kubernetes cluster.
+    # If the namespace doesn't exist, it will be created.
     - name: Ensure the logging namespace exists
       shell: kubectl get namespace logging || kubectl create namespace logging
 
+    # Task to ensure that the 'amazon-cloudwatch' namespace exists in the Kubernetes cluster.
+    # If the namespace doesn't exist, it will be created.
     - name: Ensure the amazon-cloudwatch namespace exists
       shell: kubectl get namespace amazon-cloudwatch || kubectl create namespace amazon-cloudwatch
 
+    # Task to create a ConfigMap named 'cluster-info' in the 'amazon-cloudwatch' namespace.
+    # This ConfigMap stores information about the cluster name and AWS region.
+    # The ConfigMap is only created if it doesn't already exist.
     - name: Create cluster-info ConfigMap only if it doesn't exist
       shell: |
         kubectl get configmap cluster-info -n amazon-cloudwatch || \
         kubectl create configmap cluster-info --from-literal=cluster.name=socks_shop_cluster --from-literal=logs.region=us-east-1 -n amazon-cloudwatch
 
+    # Task to deploy the Fluentd DaemonSet in the Kubernetes cluster.
+    # Fluentd is used to collect logs from the cluster and send them to CloudWatch.
+    # The DaemonSet is deployed using a predefined YAML file hosted on GitHub.
     - name: Deploy Fluentd DaemonSet
       shell: kubectl apply -f https://raw.githubusercontent.com/aws-samples/amazon-cloudwatch-container-insights/latest/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/fluentd/fluentd.yaml
 
+    # Task to add the Elastic Helm repository to the Helm client.
+    # This repository contains Helm charts for Elasticsearch and other Elastic products.
     - name: Add elastic Helm repo
       shell: helm repo add elastic https://helm.elastic.co
 
+    # Task to install Elasticsearch in the 'logging' namespace using Helm.
+    # Elasticsearch is a search and analytics engine commonly used for log storage and analysis.
     - name: Install Elasticsearch 
       shell: helm install elasticsearch elastic/elasticsearch --namespace logging
 
+    # Task to download and install the public signing key for Kibana.
+    # This key is used to verify the authenticity of the Kibana package before installation.
     - name: Download and install the public signing key for Kibana
       shell: wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
 
+    # Task to install required APT transport package and add the Elastic APT repository.
+    # The APT repository is used to install Kibana from the official Elastic packages.
     - name: Install from APT repository
       shell: |
        sudo apt-get install apt-transport-https
        echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
        
-    - name:  Install the Kibana Debian package   
+    # Task to update APT package lists and install Kibana using the APT package manager.
+    # Kibana is used for visualizing data stored in Elasticsearch.
+    - name: Install the Kibana Debian package   
       shell: sudo apt-get update && sudo apt-get install kibana
