@@ -1,0 +1,17 @@
+# Terraform
+*.tfstate
+*.tfstate.backup
+.terraform/
+
+# Ansible
+*.retry
+secrets.yml
+
+# Kubernetes
+kubeconfig
+
+# Logs
+*.log
+
+# Node modules
+node_modules/
