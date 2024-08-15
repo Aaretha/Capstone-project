@@ -1,15 +1,15 @@
-apiVersion: cert-manager.io/v1
-kind: ClusterIssuer
+apiVersion: cert-manager.io/v1  # Specifies the API version for the ClusterIssuer resource
+kind: ClusterIssuer  # Resource type is ClusterIssuer, which issues TLS certificates at the cluster level
 metadata:
-  name: letsencrypt-prod
-  namespace: cert-manager
+  name: letsencrypt-prod  # Name of the ClusterIssuer
+  namespace: cert-manager  # The namespace where the ClusterIssuer is created, typically where cert-manager is deployed
 spec:
-  acme:
-    server: https://acme-v02.api.letsencrypt.org/directory
-    email: thearethra@gmail.com
+  acme:  # Specifies that the ACME protocol (used by Let's Encrypt) will be used for issuing certificates
+    server: https://acme-v02.api.letsencrypt.org/directory  # The ACME server endpoint for Let's Encrypt in production
+    email: thearethra@gmail.com  # Email address used for ACME registration and recovery contact
     privateKeySecretRef:
-      name: letsencrypt-prod
-    solvers:
-    - http01:
+      name: letsencrypt-prod  # Name of the Kubernetes Secret where the ACME account's private key will be stored
+    solvers:  # Defines the challenge mechanisms to prove domain ownership
+    - http01:  # Specifies the HTTP-01 challenge type, which requires a specific file to be accessible via HTTP
         ingress:
-          class: nginx
+          class: nginx  # Ingress class to use for solving the HTTP-01 challenge, here it is set to 'nginx'
