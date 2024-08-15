@@ -2,9 +2,16 @@
 - name: Set Up Security Measures
   hosts: localhost
   tasks:
+
+    # Task 1: Install cert-manager
+    # This task installs cert-manager, a Kubernetes add-on to automate the management and issuance of TLS certificates.
+    # The shell command uses kubectl to apply the cert-manager manifest from the official GitHub repository.
     - name: Install cert-manager
       shell: kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.15.2/cert-manager.yaml
 
+    # Task 2: Configure Let's Encrypt ClusterIssuer
+    # This task creates a ClusterIssuer resource in Kubernetes, which defines how cert-manager should request TLS certificates from Let's Encrypt.
+    # The configuration includes the ACME protocol details, email for notifications, and solver configuration using the NGINX ingress controller.
     - name: Configure Let's Encrypt ClusterIssuer
       kubernetes.core.k8s:
         state: present
@@ -25,6 +32,9 @@
                   ingress:
                     class: nginx
 
+    # Task 3: Apply Ingress with TLS
+    # This task creates an Ingress resource with TLS enabled for the specified domain. 
+    # The Ingress uses the Let's Encrypt certificate managed by cert-manager to secure traffic to the socks-shop application.
     - name: Apply Ingress with TLS
       kubernetes.core.k8s:
         state: present
@@ -53,6 +63,9 @@
                       port:
                         number: 80
 
+    # Task 4: Apply NetworkPolicy
+    # This task defines a NetworkPolicy to restrict incoming traffic to the socks-shop application.
+    # Only pods with the label "app: socks-shop" are allowed to communicate with other "socks-shop" pods on port 80.
     - name: Apply NetworkPolicy
       kubernetes.core.k8s:
         state: present
