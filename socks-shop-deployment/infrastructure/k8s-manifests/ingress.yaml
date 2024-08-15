@@ -1,23 +1,25 @@
-apiVersion: networking.k8s.io/v1
-kind: Ingress
+apiVersion: networking.k8s.io/v1  # Specifies the API version for the Ingress resource
+kind: Ingress  # Resource type is Ingress, which manages external access to services in a Kubernetes cluster
 metadata:
-  name: socks-shop-ingress
-  namespace: default
+  name: socks-shop-ingress  # Name of the Ingress resource
+  namespace: default  # The namespace where the Ingress will be created
   annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"  # Annotation specifying the cluster issuer for TLS certificates from Let's Encrypt
+
 spec:
   tls:
   - hosts:
-    - socksshop.example.com
-    secretName: socks-shop-tls
+    - socksshop.example.com  # The domain name for which TLS/SSL is enabled
+    secretName: socks-shop-tls  # Name of the secret that stores the TLS certificate and key
+
   rules:
-  - host: socksshop.example.com
+  - host: socksshop.example.com  # The domain name for routing traffic
     http:
       paths:
-      - path: /
-        pathType: Prefix
+      - path: /  # The path to match for routing traffic
+        pathType: Prefix  # Path matching type; 'Prefix' means requests starting with the path will be routed
         backend:
           service:
-            name: front-end
+            name: front-end  # Name of the service to route traffic to
             port:
-              number: 80
+              number: 80  # Port on which the backend service is listening
