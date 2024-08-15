@@ -1,24 +1,30 @@
 ---
-- name: Setup Monitoring Tools
-  hosts: localhost
+- name: Setup Monitoring Tools  # Playbook name indicating its purpose
+  hosts: localhost  # Target host group is 'localhost' as the tasks are executed locally
   tasks:
-    - name: Create monitoring namespace
+    - name: Create monitoring namespace  # Task to create a namespace called 'monitoring' in Kubernetes
       kubernetes.core.k8s:
-        state: present
+        state: present  # Ensures the namespace exists
         definition:
-          apiVersion: v1
-          kind: Namespace
+          apiVersion: v1  # API version for the Kubernetes resource
+          kind: Namespace  # Resource type to create in Kubernetes
           metadata:
-            name: monitoring
+            name: monitoring  # Name of the namespace to be created
 
-    - name: Deploy Prometheus
+    - name: Deploy Prometheus  # Task to deploy Prometheus for monitoring 
       shell: |
+        # Add the Prometheus Helm chart repository
         helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+        # Update the Helm repository index to ensure you have the latest charts
         helm repo update
+        # Install Prometheus in the 'monitoring' namespace using the Helm chart
         helm install prometheus prometheus-community/prometheus --namespace monitoring
 
-    - name: Deploy Grafana
+    - name: Deploy Grafana  # Task to deploy Grafana for monitoring
       shell: |
+        # Add the Grafana Helm chart repository
         helm repo add grafana https://grafana.github.io/helm-charts
+        # Update the Helm repository index to ensure you have the latest charts
         helm repo update
+        # Install Grafana in the 'monitoring' namespace using the Helm chart
         helm install grafana grafana/grafana --namespace monitoring
