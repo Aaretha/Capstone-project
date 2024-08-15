@@ -1,25 +1,43 @@
-# - hosts: localhost
-#   tasks:
-#     - name: Setup AWS Infrastructure with Terraform
-#       command: terraform init 
-#       args:
-#         chdir: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/terraform
-
-#     - name: Setup AWS Infrastructure with Terraform
-#       command: terraform apply -auto-approve
-#       args:
-#         chdir: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/terraform
-
-# - import_playbook: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/ansible/playbooks/setup_monitoring.yml
-
-# - import_playbook: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/ansible/playbooks/deploy_socks_shop.yml
-
-# - import_playbook: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/ansible/playbooks/security.yml
-
-# - import_playbook: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/ansible/playbooks/setup_logging.yml
+# This playbook sets up the necessary AWS infrastructure using Terraform, then
+# imports additional playbooks to configure monitoring, deploy the Socks Shop application,
+# apply security configurations, and set up logging. Finally, it applies the necessary
+# Kubernetes manifests.
 
 - hosts: localhost
   tasks:
+    # Initialize Terraform within the specified directory to set up AWS infrastructure
+    - name: Setup AWS Infrastructure with Terraform
+      command: terraform init 
+      args:
+        chdir: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/terraform
+
+    # Apply the Terraform configuration to provision the AWS infrastructure
+    # Auto-approve the changes to avoid manual confirmation prompts
+    - name: Apply Terraform to Provision AWS Infrastructure
+      command: terraform apply -auto-approve
+      args:
+        chdir: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/terraform
+
+# Import the monitoring setup playbook to configure monitoring tools for the infrastructure
+- import_playbook: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/ansible/playbooks/setup_monitoring.yml
+
+# Import the deployment playbook to deploy the Socks Shop application to the infrastructure
+- import_playbook: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/ansible/playbooks/deploy_socks_shop.yml
+
+# Import the security playbook to apply security configurations to the infrastructure
+- import_playbook: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/ansible/playbooks/security.yml
+
+# Import the logging setup playbook to configure logging for the infrastructure
+- import_playbook: /mnt/c/users/adewuyi/documents/alt23/capstone/socks_shop_deployment/infrastructure/ansible/playbooks/setup_logging.yml
+
+- hosts: localhost
+  tasks:
+    # Apply Kubernetes manifests to configure the cluster. These manifests include:
+    # - issuer.yaml: Defines the Certificate Issuer for TLS certificates.
+    # - ingress.yaml: Configures the Ingress resource to manage external access to services.
+    # - servicemonitor.yaml: Sets up monitoring for services using Prometheus.
+    # - alertmanager-config.yaml: Configures Alertmanager for sending alerts based on monitoring data.
+    # - network-policy.yaml: Defines network policies to secure traffic within the cluster.
     - name: Apply Kubernetes Manifests 
       command: |
         kubectl apply -f issuer.yaml -f ingress.yaml -f servicemonitor.yaml -f alertmanager-config.yaml -f network-policy.yaml
