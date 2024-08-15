@@ -49,10 +49,10 @@
           spec:
             tls:
             - hosts:
-              - geegeeg.blogspot.com
+              - socksshop.example.com
               secretName: socks-shop-tls
             rules:
-            - host: geegeeg.blogspot.com
+            - host: socksshop.example.com
               http:
                 paths:
                 - path: /
