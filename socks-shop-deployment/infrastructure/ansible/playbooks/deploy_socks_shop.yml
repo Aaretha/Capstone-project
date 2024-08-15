@@ -2,13 +2,17 @@
 - name: Deploy Socks Shop Application
   hosts: localhost
   tasks:
+    # Clone the Socks Shop microservices demo repository from GitHub
+    # This repository contains the complete microservices architecture for the Socks Shop application.
     - name: Clone Socks Shop repository
       git:
-        repo: 'https://github.com/microservices-demo/microservices-demo'
-        dest: './microservices-demo'
-        version: 'master'
+        repo: 'https://github.com/microservices-demo/microservices-demo'  # The GitHub repository URL
+        dest: './microservices-demo'  # The local directory where the repository will be cloned
+        version: 'master'  # The branch of the repository to clone, here we are using the master branch
 
+    # Deploy the Socks Shop application to the Kubernetes cluster
+    # The deployment uses the Kubernetes manifest file found in the cloned repository.
     - name: Deploy Socks Shop
       kubernetes.core.k8s:
-        state: present
-        src: './microservices-demo/deploy/kubernetes/complete-demo.yaml'
+        state: present  # Ensure that the resources described in the manifest are present in the cluster
+        src: './microservices-demo/deploy/kubernetes/complete-demo.yaml'  # Path to the Kubernetes manifest file for deploying the entire Socks Shop application
