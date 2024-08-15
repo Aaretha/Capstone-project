@@ -1,17 +1,19 @@
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
+apiVersion: monitoring.coreos.com/v1  # Specifies the API version for the ServiceMonitor resource, part of the Prometheus Operator
+kind: ServiceMonitor  # Resource type is ServiceMonitor, used to define how Prometheus should scrape metrics from services
 metadata:
-  name: socks-shop
-  namespace: monitoring
+  name: socks-shop  # Name of the ServiceMonitor
+  namespace: monitoring  # Namespace where the ServiceMonitor is created, often where monitoring tools like Prometheus are deployed
   labels:
-    release: prometheus
+    release: prometheus  # Label to identify this ServiceMonitor as part of the Prometheus release
+
 spec:
   selector:
     matchLabels:
-      app: socks-shop
+      app: socks-shop  # Selector to identify the services this ServiceMonitor should monitor, based on their labels
   namespaceSelector:
     matchNames:
-    - default
+    - default  # Specifies that the ServiceMonitor should look for services in the 'default' namespace
+
   endpoints:
-  - port: http
-    interval: 30s
+  - port: http  # Specifies the port to scrape metrics from, named 'http' as defined in the service's port configuration
+    interval: 30s  # Frequency at which metrics should be scraped from the endpoints (every 30 seconds)
