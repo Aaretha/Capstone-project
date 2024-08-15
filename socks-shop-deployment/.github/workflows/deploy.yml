@@ -1,0 +1,49 @@
+name: Deploy Socks Shop
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.1.0
+
+      - name: Terraform Init
+        run: terraform init
+        working-directory: ./infrastructure/terraform
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        working-directory: ./infrastructure/terraform
+
+      - name: Set up Ansible
+        uses: ansible/ansible-lint-action@v5.0.0
+        with:
+          version: '2.10'
+
+      - name: Run Setup Monitoring Playbook
+        run: ansible-playbook infrastructure/ansible/playbooks/setup_monitoring.yml
+
+      - name: Run Deploy Socks Shop Playbook
+        run: ansible-playbook infrastructure/ansible/playbooks/deploy_socks_shop.yml
+
+      - name: Run Setup Security Playbook
+        run: ansible-playbook infrastructure/ansible/playbooks/setup_security.yml
+
+      - name: Run Setup Logging Playbook
+        run: ansible-playbook infrastructure/ansible/playbooks/setup_logging.yml
+
+      - name: Apply Kubernetes Manifests
+        run: |
+          kubectl apply -f issuer.yaml -f ingress.yaml -f servicemonitor.yaml -f alertmanager-config.yaml -f network-policy.yaml
+        working-directory: ./infrastructure/k8s-manifests
